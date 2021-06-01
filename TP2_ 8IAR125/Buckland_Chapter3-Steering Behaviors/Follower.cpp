@@ -20,7 +20,7 @@ Follower::Follower(GameWorld* world,
                               max_turn_rate,
                               scale) {
 
-    this->Steering()->OffsetPursuitOn(target, Vector2D(1,1));
+    this->Steering()->OffsetPursuitOn(target, Vector2D(-30,0));
     this->SetScale(Vector2D(5, 5));
     this->SetMaxSpeed(70);
 }
