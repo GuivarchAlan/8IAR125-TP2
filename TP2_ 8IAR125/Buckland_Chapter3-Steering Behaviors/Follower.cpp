@@ -22,7 +22,7 @@ Follower::Follower(GameWorld* world,
 
     this->Steering()->OffsetPursuitOn(target, Vector2D(-30,0));
     this->SetScale(Vector2D(5, 5));
-    this->SetMaxSpeed(70);
+    this->SetMaxSpeed(140);
 }
 
 Follower::~Follower() {

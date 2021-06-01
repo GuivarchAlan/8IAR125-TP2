@@ -61,6 +61,8 @@ private:
   //keeps track of the average FPS
   double                         m_dAvFrameTime;
 
+  //Flight formation
+  int formation;
 
   //flags to turn aids and obstacles etc on/off
   bool  m_bShowWalls;
@@ -110,6 +112,7 @@ public:
   const std::vector<BaseGameEntity*>& Obstacles()const{return m_Obstacles;}
   const std::vector<Vehicle*>&        Agents(){return m_Vehicles;}
 
+  void updateFormation(boolean tem);
 
   //handle WM_COMMAND messages
   void        HandleKeyPresses(WPARAM wParam);

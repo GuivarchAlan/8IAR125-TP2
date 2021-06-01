@@ -30,6 +30,7 @@ GameWorld::GameWorld(int cx, int cy):
             m_cyClient(cy),
             m_bPaused(false),
             m_vCrosshair(Vector2D(cxClient()/2.0, cxClient()/2.0)),
+            formation(0),
             m_bShowWalls(false),
             m_bShowObstacles(false),
             m_bShowPath(false),
@@ -269,6 +270,72 @@ void GameWorld::SetCrosshair(POINTS p)
 }
 
 
+void GameWorld::updateFormation(boolean tem) {
+    int vOffset = 20;
+    if (tem) {
+        int nProtectors = m_Vehicles.size() / 2;
+        for (int i = 1; i < m_Vehicles.size() / 2 + 1; i++) {
+            double angle = ((((double)(i)) - 1) / ((double)nProtectors)) * TwoPi;
+            m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[0], Vector2D(10 - 30 * cos(angle), 30 * sin(angle)));
+        }
+        switch (formation)
+        {
+        case 0:
+            if (m_Vehicles.size() / 2 + 1 < m_Vehicles.size()) {
+                m_Vehicles[m_Vehicles.size() / 2 + 1]->Steering()->OffsetPursuitOn(m_Vehicles[0], Vector2D(-45, 0));
+            }
+            for (int i = m_Vehicles.size() / 2 + 2; i < m_Vehicles.size(); i++) {
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 1], Vector2D(-vOffset, 0));
+            }
+            break;
+        case 1:
+            if (m_Vehicles.size() / 2 + 1 < m_Vehicles.size()) {
+                m_Vehicles[m_Vehicles.size() / 2 + 1]->Steering()->OffsetPursuitOn(m_Vehicles[0], Vector2D(-vOffset, vOffset));
+            }
+            for (int i = m_Vehicles.size() / 2 + 2; i < m_Vehicles.size(); i++) {
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 1], Vector2D(-vOffset, vOffset));
+            }
+            break;
+        case 2:
+            for (int i = m_Vehicles.size() / 2 + 1; i < m_Vehicles.size(); i++) {
+                if (i < m_Vehicles.size() / 2 + 3) {
+                    m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[0], Vector2D(-vOffset, (i % 2 == 0 ? vOffset : -vOffset)));
+                    continue;
+                }
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 2], Vector2D(-vOffset, (i % 2 == 0 ? vOffset : -vOffset)));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    else {
+        switch (formation)
+        {
+        case 0:
+            for (int i = 1; i < m_Vehicles.size(); i++) {
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 1], Vector2D(-45, 0));
+            }
+            break;
+        case 1:
+            for (int i = 1; i < m_Vehicles.size(); i++) {
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 1], Vector2D(-vOffset, vOffset));
+            }
+            break;
+        case 2:
+            if (m_Vehicles.size() > 1) {
+                m_Vehicles[1]->Steering()->OffsetPursuitOn(m_Vehicles[0], Vector2D(-vOffset, -vOffset));
+            }
+            for (int i = 2; i < m_Vehicles.size(); i++) {
+                m_Vehicles[i]->Steering()->OffsetPursuitOn(m_Vehicles[i - 2], Vector2D(-vOffset, (i % 2 == 0 ? vOffset : -vOffset)));
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 //------------------------- HandleKeyPresses -----------------------------
 void GameWorld::HandleKeyPresses(WPARAM wParam)
 {
@@ -291,14 +358,29 @@ void GameWorld::HandleKeyPresses(WPARAM wParam)
   case 'L' :
       if (m_Vehicles[0]->Steering()->isWanderOn()) {
           m_Vehicles[0]->Steering()->WanderOff();
-          m_Vehicles[0]->Steering()->SeekOn();
           m_Vehicles[0]->Steering()->ArriveOn();
+          updateFormation(true);
       }
       else {
-          m_Vehicles[0]->Steering()->SeekOff();
           m_Vehicles[0]->Steering()->ArriveOff();
           m_Vehicles[0]->Steering()->WanderOn();
+          updateFormation(false);
       }
+      break;
+
+  case 'F':
+      formation = 0;
+      updateFormation(!m_Vehicles[0]->Steering()->isWanderOn());
+      break;
+
+  case 'E':
+      formation = 1;
+      updateFormation(!m_Vehicles[0]->Steering()->isWanderOn());
+      break;
+
+  case 'V':
+      formation = 2;
+      updateFormation(!m_Vehicles[0]->Steering()->isWanderOn());
       break;
 
     case 'P':
