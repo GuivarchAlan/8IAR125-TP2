@@ -288,6 +288,19 @@ void GameWorld::HandleKeyPresses(WPARAM wParam)
     }
     break;
 
+  case 'L' :
+      if (m_Vehicles[0]->Steering()->isWanderOn()) {
+          m_Vehicles[0]->Steering()->WanderOff();
+          m_Vehicles[0]->Steering()->SeekOn();
+          m_Vehicles[0]->Steering()->ArriveOn();
+      }
+      else {
+          m_Vehicles[0]->Steering()->SeekOff();
+          m_Vehicles[0]->Steering()->ArriveOff();
+          m_Vehicles[0]->Steering()->WanderOn();
+      }
+      break;
+
     case 'P':
       
       TogglePause(); break;
